@@ -2,26 +2,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "trie.h"
 
-#ifndef NUM_LETTERS
-#define NUM_LETTERS 26
-#endif
 
-#ifndef ERROR
-#define ERROR -1
-#endif
 
-typedef struct _node{
-  char letter;
-  size_t count;
-  size_t endOfWord;
-  struct _node* children[NUM_LETTERS];
-} Node;
-
-typedef struct _trie{
-  Node* root;
-
-} Trie;
 
 int constructTrie(Trie *t){
   t->root = (Node*)calloc(1, sizeof(Node));
@@ -34,7 +18,7 @@ int constructTrie(Trie *t){
 }
 
 int addChilde(Node* n, size_t i){
-  if(n == NULL || i < 0 || i <= NUM_LETTERS || n->children[i] != NULL)
+  if(n == NULL || i < 0 || NUM_LETTERS <= i || n->children[i] != NULL)
     return ERROR;
 
   n->children[i] = (Node*)calloc(1, sizeof(Node));
@@ -81,8 +65,10 @@ int insertWord(Trie *t, char* word, size_t size){
 
     size_t index = word[i] - 'a';
     if(father->children[index] == NULL)
-      if(addChilde(father, index) == ERROR)
+      if(addChilde(father, index) == ERROR){
+        printf("ass chiled failed\n");
         return ERROR;
+      }
 
     father = father->children[index];
 
@@ -90,5 +76,57 @@ int insertWord(Trie *t, char* word, size_t size){
   if(father->letter != '\0')
     father->count++;
 
+  if(t->longestWord < size)
+    t->longestWord = size;
+
+  return 0;
+}
+
+void printNode(Node* node, char* word, size_t size){
+  if(size >= 0)
+    word[size] = node->letter;
+  word[size+1] = '\0';
+  if(node->count > 0)
+    printf("%s\t%d\n", word, (int)node->count);
+  for (size_t i = 0; i < NUM_LETTERS; i++) {
+    if(node->children[i] != NULL){
+      printNode(node->children[i], word, size+1);
+      word[size+1] = '\0';
+    }
+  }
+}
+
+void printNodeRvrs(Node* node, char* word, size_t size){
+  if(size >= 0)
+    word[size] = node->letter;
+
+  for (size_t i = 0; i < NUM_LETTERS; i++) {
+    if(node->children[NUM_LETTERS-i-1] != NULL){
+      word[size+1] = '\0';
+      printNodeRvrs(node->children[NUM_LETTERS-i-1], word, size+1);
+    }
+  }
+  word[size+1] = '\0';
+  if(node->count > 0)
+    printf("%s\t%d\n", word, (int)node->count);
+}
+
+int printTrie(Trie* t, bool rvrs){
+  if(t == NULL){
+    printf("Can't print NULL trie\n");
+    return ERROR;
+  }
+
+  char* word = calloc(sizeof(char), t->longestWord);
+  if(word == NULL)
+    return ERROR;
+
+  if(rvrs)
+    printNodeRvrs(t->root, word, -1);
+  else
+    printNode(t->root, word, -1);
+
+  if(word != NULL)
+    free(word);
   return 0;
 }

@@ -65,7 +65,7 @@ int getword(char w[]){
   if(isEOF(c == EOF))
     return EOF;
 
-  return i PREV;
+  return i;// PREV;
 }
 
 int substring(char* str1, char* str2){
