@@ -1,19 +1,21 @@
+FLAGS = -Wall -Werror -g
+
 all: frequency
 
 frequency: main.o trie.o stringFunctions.o
-	gcc main.o trie.o stringFunctions.o -o frequency
+	gcc $(FLAGS) main.o trie.o stringFunctions.o -o frequency
 
 main.o: main.c trie.h stringFunctions.h
-	gcc -c main.c
+	gcc $(FLAGS) -c main.c
 
 trie.o: trie.c trie.h
-	gcc -c trie.c
+	gcc $(FLAGS) -c trie.c
 
 stringFunctions.o: stringFunctions.c
-	gcc -c stringFunctions.c
+	gcc $(FLAGS) -c stringFunctions.c
 
 
 .PHONY: all clean
 
 clean:
-	*.o frequency
+	rm -f *.o frequency

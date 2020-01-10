@@ -2,9 +2,11 @@
 #include "trie.h"
 #include "stdbool.h"
 #include "stdio.h"
+#include <stdlib.h>
+
 
 int main(int argc, char const *argv[]) {
-  char word[WORD]; // TODO chech if cane limit lenght
+  char* word = NULL;
   Trie trie;
 
   if(constructTrie(&trie) == ERROR)
@@ -12,18 +14,19 @@ int main(int argc, char const *argv[]) {
 
   int lent;
   do {
-    lent = getword(word);
+    lent = getUnlimitWord(&word);
     if(lent > 0){
       if(insertWord(&trie, word, lent) == ERROR){
         printf("insertWord failed\n");
         return ERROR;
       }
     }
-
+    if(word != NULL)
+      free(word);
   } while(lent != EOF);
 
   bool rvrs = (argc > 1 && *(argv[1]) == 'r');
-  
+
   printTrie(&trie, rvrs);
   destroyTrie(&trie);
 

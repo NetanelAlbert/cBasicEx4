@@ -13,6 +13,7 @@ int constructTrie(Trie *t){
     return ERROR;
 
   t->root->letter = '\0';
+  t->longestWord = 0;
   return 0;
 
 }
@@ -21,12 +22,14 @@ int addChilde(Node* n, size_t i){
   if(n == NULL || i < 0 || NUM_LETTERS <= i || n->children[i] != NULL)
     return ERROR;
 
-  n->children[i] = (Node*)calloc(1, sizeof(Node));
+  Node* son = (Node*)calloc(1, sizeof(Node));
 
-  if(n->children[i] == NULL)
+  if(son == NULL)
     return ERROR;
 
-  n->children[i]->letter = 'a' + i;
+  son->letter = 'a' + i;
+
+  n->children[i] = son;
 
   return 0;
 
@@ -60,7 +63,7 @@ int toLowerCase(char* c){
 int insertWord(Trie *t, char* word, size_t size){
   Node* father = t->root;
   for (size_t i = 0; i < size; i++) {
-    if(toLowerCase(word+i) == ERROR) // TODO chech if need to seperate words
+    if(toLowerCase(word+i) == ERROR)
       continue;
 
     size_t index = word[i] - 'a';
@@ -76,37 +79,38 @@ int insertWord(Trie *t, char* word, size_t size){
   if(father->letter != '\0')
     father->count++;
 
-  if(t->longestWord < size)
-    t->longestWord = size;
+  if(t->longestWord <= size)
+    t->longestWord = size+1; // +1 for safety
 
   return 0;
 }
 
 void printNode(Node* node, char* word, size_t size){
-  if(size >= 0)
-    word[size] = node->letter;
-  word[size+1] = '\0';
+  if(size > 0)
+    word[size-1] = node->letter;
+
+  word[size] = '\0';
   if(node->count > 0)
     printf("%s\t%d\n", word, (int)node->count);
   for (size_t i = 0; i < NUM_LETTERS; i++) {
     if(node->children[i] != NULL){
       printNode(node->children[i], word, size+1);
-      word[size+1] = '\0';
+      word[size] = '\0';
     }
   }
 }
 
 void printNodeRvrs(Node* node, char* word, size_t size){
-  if(size >= 0)
-    word[size] = node->letter;
+  if(size > 0)
+    word[size-1] = node->letter;
 
   for (size_t i = 0; i < NUM_LETTERS; i++) {
     if(node->children[NUM_LETTERS-i-1] != NULL){
-      word[size+1] = '\0';
+      word[size] = '\0';
       printNodeRvrs(node->children[NUM_LETTERS-i-1], word, size+1);
     }
   }
-  word[size+1] = '\0';
+  word[size] = '\0';
   if(node->count > 0)
     printf("%s\t%d\n", word, (int)node->count);
 }
@@ -122,9 +126,9 @@ int printTrie(Trie* t, bool rvrs){
     return ERROR;
 
   if(rvrs)
-    printNodeRvrs(t->root, word, -1);
+    printNodeRvrs(t->root, word, 0);
   else
-    printNode(t->root, word, -1);
+    printNode(t->root, word, 0);
 
   if(word != NULL)
     free(word);
