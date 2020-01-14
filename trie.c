@@ -91,7 +91,7 @@ void printNode(Node* node, char* word, size_t size){
 
   word[size] = '\0';
   if(node->count > 0)
-    printf("%s\t%d\n", word, (int)node->count);
+    printf("%s %d\n", word, (int)node->count);
   for (size_t i = 0; i < NUM_LETTERS; i++) {
     if(node->children[i] != NULL){
       printNode(node->children[i], word, size+1);
@@ -112,7 +112,7 @@ void printNodeRvrs(Node* node, char* word, size_t size){
   }
   word[size] = '\0';
   if(node->count > 0)
-    printf("%s\t%d\n", word, (int)node->count);
+    printf("%s %d\n", word, (int)node->count);
 }
 
 int printTrie(Trie* t, bool rvrs){
